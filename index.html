@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050505">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Circa">
+  <meta name="description" content="Circa: визуальный конструктор аккордов и MIDI-прогрессий.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/icon-180.png">
+  <link rel="icon" href="./icons/icon-192.png" type="image/png">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Circa / Compose</title>
+</head>
+<body data-theme="dark">
+  <div id="app" class="app-shell">
+    <header class="topbar">
+      <div class="topbar-title"><span class="brand">Circa</span><span class="slash">/</span><span id="page-name">Compose</span></div>
+      <button id="top-action" class="icon-button" type="button" aria-label="Дополнительно" title="Дополнительно"></button>
+    </header>
+
+    <main id="screen-compose" class="screen active" aria-label="Конструктор аккордов">
+      <div class="eyebrow spaced"><span>HARMONY WORKSPACE</span><span id="compose-counter">01 / 12</span></div>
+      <div class="chord-heading"><h1 id="chord-name">C major</h1><div id="chord-notes" class="subheading">C · E · G</div></div>
+      <div class="circle-area">
+        <svg id="chromatic-circle" class="chromatic-circle" viewBox="-180 -180 360 360" role="group" aria-label="Хроматический круг. Нажимай на ноты, чтобы выбирать их. Перетаскивай, чтобы транспонировать аккорд."></svg>
+        <div class="circle-hint">НАЖМИ НА НОТУ · ПОВЕРНИ ФИГУРУ</div>
+      </div>
+      <div class="transport">
+        <button id="transpose-down" class="transport-control" aria-label="На полутон ниже" title="На полутон ниже"></button>
+        <button id="listen-chord" class="transport-play" aria-label="Прослушать аккорд" title="Прослушать аккорд"></button>
+        <button id="transpose-up" class="transport-control" aria-label="На полутон выше" title="На полутон выше"></button>
+      </div>
+      <div class="picker-section">
+        <div class="picker-label"><span>Тоника</span><span id="current-root-label">C</span></div>
+        <div id="root-pills" class="pill-strip" aria-label="Выбери тонику"></div>
+        <div class="picker-label"><span>Тип аккорда</span><button id="show-all-chords" class="text-button" type="button">Все типы ↗</button></div>
+        <div id="quality-pills" class="pill-strip" aria-label="Выбери тип аккорда"></div>
+      </div>
+      <div class="keyboard-block"><div class="picker-label"><span>Клавиатура</span><span>2 OCT</span></div><div id="piano" class="piano" aria-label="Фортепианная клавиатура"></div></div>
+      <div id="scale-notice" class="scale-notice hidden"></div>
+      <button id="add-to-progression" class="primary-action" type="button"><span>Добавить в прогрессию</span><span class="action-plus">+</span></button>
+      <div id="progression-mini" class="secondary-caption">Прогрессия пока пуста</div>
+    </main>
+
+    <main id="screen-progression" class="screen" aria-label="Прогрессия">
+      <div class="eyebrow spaced"><span>SEQUENCER</span><span id="sequence-counter">00 CHORDS</span></div>
+      <h1 class="screen-heading">Progression<span class="heading-dot">.</span></h1>
+      <p class="screen-intro">Собери последовательность и перенеси её в Ableton одним MIDI-файлом.</p>
+      <div class="section-line"><span>Последовательность</span><button type="button" class="text-button" id="clear-progression">Очистить</button></div>
+      <div id="progression-cards" class="sequence-grid"></div>
+      <button id="new-chord" class="outline-action" type="button">+ Добавить аккорд</button>
+      <div class="section-line top-spacer"><span>Воспроизведение</span><span>01</span></div>
+      <div class="settings-row"><span>Темп</span><div class="value-input"><input id="bpm" type="number" min="40" max="240" step="1" inputmode="numeric" value="120" aria-label="Темп в BPM"><span>BPM</span></div></div>
+      <div class="settings-row"><span>Длина аккорда</span><select id="beats" aria-label="Длина аккорда"><option value="1">1 доля</option><option value="2">2 доли</option><option value="4" selected>4 доли</option><option value="8">8 долей</option></select></div>
+      <div class="settings-row"><span>Обращение</span><select id="inversion" aria-label="Обращение аккордов"><option value="0">Основное</option><option value="1">Первое</option><option value="2">Второе</option><option value="3">Третье</option></select></div>
+      <label class="settings-row toggle-row"><span>Зациклить воспроизведение</span><input id="loop" type="checkbox" checked><span class="switch"></span></label>
+      <button type="button" class="primary-action play-action" id="play-progression"><span>Слушать прогрессию</span><span id="play-action-icon">▷</span></button>
+      <div class="section-line top-spacer"><span>Экспорт</span><span>02</span></div>
+      <button type="button" class="outline-action with-arrow" id="export-midi"><span>Экспорт MIDI</span><span>↗</span></button>
+      <button type="button" class="outline-action with-arrow" id="share-midi"><span>Поделиться MIDI</span><span>↗</span></button>
+      <p class="fine-print">Стандартный .mid. Можно открыть в Ableton Live и других DAW. На iPhone удобно отправить файл через меню «Поделиться».</p>
+    </main>
+
+    <main id="screen-explore" class="screen" aria-label="Библиотека гармоний">
+      <div class="eyebrow spaced"><span>REFERENCE</span><span>12 NOTES</span></div>
+      <h1 class="screen-heading">Explore<span class="heading-dot">.</span></h1>
+      <div class="explore-tabs"><button type="button" class="tab-choice active" data-explore="chords">Аккорды</button><button type="button" class="tab-choice" data-explore="scales">Гаммы</button></div>
+      <label class="search-box"><span id="search-icon"></span><input id="explore-search" type="search" placeholder="Поиск по библиотеке" autocomplete="off"></label>
+      <div id="explore-list" class="explore-list"></div>
+    </main>
+
+    <main id="screen-projects" class="screen" aria-label="Сохранённые проекты">
+      <div class="eyebrow spaced"><span>LOCAL LIBRARY</span><span id="project-count">00 SAVED</span></div>
+      <h1 class="screen-heading">Projects<span class="heading-dot">.</span></h1>
+      <p class="screen-intro">Проекты хранятся на этом устройстве. Регистрация и интернет не нужны.</p>
+      <div class="section-line"><span>Текущая работа</span><span id="autosave-caption">Автосохранение</span></div>
+      <label class="field-caption" for="project-name">Название проекта</label>
+      <input class="project-name-field" id="project-name" maxlength="60" placeholder="Без названия" value="Без названия">
+      <button class="primary-action" id="save-project" type="button"><span>Сохранить снимок проекта</span><span>+</span></button>
+      <div class="section-line top-spacer"><span>Сохранённые</span><span id="saved-caption">00</span></div>
+      <div id="projects-list" class="projects-list"></div>
+      <p class="fine-print">Сохранение локальное. Если очистишь данные браузера, проекты могут исчезнуть. Важные последовательности экспортируй в MIDI.</p>
+    </main>
+
+    <main id="screen-settings" class="screen" aria-label="Настройки">
+      <div class="eyebrow spaced"><span>PREFERENCES</span><span>01</span></div>
+      <h1 class="screen-heading">Settings<span class="heading-dot">.</span></h1>
+      <div class="section-line top-spacer"><span>Оформление</span></div>
+      <div class="settings-row"><span>Тема</span><select id="theme-choice" aria-label="Тема"><option value="dark">Dark</option><option value="light">Light</option><option value="system">System</option></select></div>
+      <div class="section-line top-spacer"><span>Аудио</span></div>
+      <div class="settings-row"><span>Тембр</span><select id="voice-choice" aria-label="Тембр"><option value="soft">Soft keys</option><option value="pure">Pure sine</option><option value="pluck">Pluck</option></select></div>
+      <div class="settings-row"><span>Настройка A4</span><select id="tuning-choice" aria-label="Частота ноты ля"><option value="440">440 Hz</option><option value="432">432 Hz</option></select></div>
+      <label class="settings-row toggle-row"><span>Тактильный отклик*</span><input id="haptics-choice" type="checkbox" checked><span class="switch"></span></label>
+      <div class="section-line top-spacer"><span>Приложение</span></div>
+      <div class="settings-row"><span>Версия</span><span class="setting-value">1.0.0</span></div>
+      <div class="settings-row"><span>Работа без интернета</span><span class="setting-value" id="offline-status">PWA</span></div>
+      <button type="button" class="outline-action with-arrow" id="install-guide"><span>Как установить на iPhone</span><span>↗</span></button>
+      <p class="fine-print">* iOS Safari может игнорировать вибрацию: это ограничение браузера. Звук запускается после первого касания.</p>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Основные разделы">
+      <button class="nav-button active" type="button" data-tab="compose" aria-label="Compose" title="Compose"><span class="nav-icon" data-icon="circle"></span><span class="nav-label">Compose</span></button>
+      <button class="nav-button" type="button" data-tab="explore" aria-label="Explore" title="Explore"><span class="nav-icon" data-icon="search"></span><span class="nav-label">Explore</span></button>
+      <button class="nav-button nav-add" type="button" id="nav-add" aria-label="Добавить аккорд" title="Добавить аккорд"><span class="nav-icon" data-icon="plus"></span></button>
+      <button class="nav-button" type="button" data-tab="progression" aria-label="Progression" title="Progression"><span class="nav-icon" data-icon="layers"></span><span class="nav-label">Sequence</span></button>
+      <button class="nav-button" type="button" data-tab="projects" aria-label="Projects" title="Projects"><span class="nav-icon" data-icon="folder"></span><span class="nav-label">Projects</span></button>
+    </nav>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog id="modal"><div id="modal-content"></div><button class="outline-action modal-close" type="button" id="close-modal">Закрыть</button></dialog>
+  <script src="./app.js" defer></script>
+</body>
+</html>
